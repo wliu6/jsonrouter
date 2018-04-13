@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Lite' do |cs|  
     cs.source_files = 'NIMKit/NIMKit/**/*.{h,m}'  
+    cs.resource = 'NIMKit/NIMKit/**/*.{xib}'  
     cs.dependency 'NIMKit/Core'  
     cs.dependency 'NIMSDK_LITE', '~> 5.0.0'  
   end  
