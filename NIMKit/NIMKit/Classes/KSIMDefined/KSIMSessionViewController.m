@@ -10,7 +10,7 @@
 #import "TZImageManager.h"
 #import "TZImagePickerController.h"
 #import "NIMAdvancedTeamCardViewController.h"
-
+#import "NIMKitInfoFetchOption.h"
 #import "KSIMUIKit/NIMKitUtil.h"
 @interface NIMSession (Assistant)
 @end
@@ -218,7 +218,7 @@ typedef void(^KSIMSessionTeamTitleViewBlock)(KSIMSessionTeamTitleView *sender);
 {
     __weak typeof(self) wself = self;
 //    [MobClick event:@"KS_GroupContact_ClickPhoto"];
-    TZImagePickerController *imagePickerVC = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:wself];
+    TZImagePickerController *imagePickerVC = [[TZImagePickerController alloc] initWithMaxImagesCount:6 delegate:self];
     imagePickerVC.allowTakePicture = NO;
     [imagePickerVC setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
         for (UIImage *image in photos) {
@@ -247,5 +247,54 @@ typedef void(^KSIMSessionTeamTitleViewBlock)(KSIMSessionTeamTitleView *sender);
 //    vc.crowdID = wself.groupExtInfo.crowdID;
 //    vc.role = wself.groupExtInfo.groupRole;
 //    [wself.navigationController pushViewController:vc animated:YES];
+}
+
+// !!!: NIMMessageCellDelegate
+- (BOOL)onTapAvatar:(NIMMessage *)message
+{
+    NSString *userId = message.from;
+    // TODO: 跳转到用户个人主页
+    
+    return YES;
+}
+
+- (BOOL)onLongPressAvatar:(NIMMessage *)message
+{
+    NSString *userId = [self messageSendSource:message];
+    if (self.session.sessionType == NIMSessionTypeTeam && ![userId isEqualToString:[NIMSDK sharedSDK].loginManager.currentAccount])
+    {
+        NIMKitInfoFetchOption *option = [[NIMKitInfoFetchOption alloc] init];
+        option.session = self.session;
+        option.forbidaAlias = YES;
+        
+        NSString *nick = [[NIMKit sharedKit].provider infoByUser:userId option:option].showName;
+        
+        NIMInputAtItem *item = [[NIMInputAtItem alloc] init];
+        item.uid  = userId;
+        item.name = nick;
+        [self.sessionInputView.atCache addAtItem:item];
+        
+        NSString *text = [NSString stringWithFormat:@"%@%@%@",NIMInputAtStartChar,nick,NIMInputAtEndChar];
+        [self.sessionInputView.toolBar insertText:text];
+    }
+    return YES;
+}
+
+- (NSString *)messageSendSource:(NIMMessage *)message
+{
+    NSString *from = nil;
+    if (message.messageType == NIMMessageTypeRobot)
+    {
+        NIMRobotObject *object = (NIMRobotObject *)message.messageObject;
+        if (object.isFromRobot)
+        {
+            from = object.robotId;
+        }
+    }
+    if (!from)
+    {
+        from = message.from;
+    }
+    return from;
 }
 @end
