@@ -252,9 +252,16 @@ typedef void(^KSIMSessionTeamTitleViewBlock)(KSIMSessionTeamTitleView *sender);
 // !!!: NIMMessageCellDelegate
 - (BOOL)onTapAvatar:(NIMMessage *)message
 {
-    NSString *userId = message.from;
-    // TODO: 跳转到用户个人主页
-    
+    NSString *userId = [self messageSendSource:message];
+    UIViewController *vc = nil;
+    if ([[NIMSDK sharedSDK].robotManager isValidRobot:userId]){
+        // TODO: 跳转到机器人信息界面
+        
+    } else {
+        // TODO: 跳转到用户个人主页
+
+    }
+    [self.navigationController pushViewController:vc animated:YES];
     return YES;
 }
 
