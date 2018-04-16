@@ -256,11 +256,11 @@ typedef void(^KSIMSessionTeamTitleViewBlock)(KSIMSessionTeamTitleView *sender);
     UIViewController *vc = nil;
     if ([[NIMSDK sharedSDK].robotManager isValidRobot:userId]){
         // TODO: 跳转到机器人信息界面
-        
     } else {
         // TODO: 跳转到用户个人主页
-
+        
     }
+    if (!vc) return NO;
     [self.navigationController pushViewController:vc animated:YES];
     return YES;
 }
