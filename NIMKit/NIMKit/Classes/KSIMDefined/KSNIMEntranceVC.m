@@ -11,6 +11,7 @@
 #import "KSIMSessionViewController.h"
 #import "KSIMLoginAgent.h"
 #import <NIMKit.h>
+#import "KSIMCellLayoutConfig.h"
 @interface KSNIMEntranceVC ()
 
 @end
@@ -33,6 +34,7 @@
     NIMServerSetting *setting    = [[NIMServerSetting alloc] init];
     setting.httpsEnabled = NO;
     [[NIMSDK sharedSDK] setServerSetting:setting];
+    [[NIMKit sharedKit] registerLayoutConfig:KSIMCellLayoutConfig.new];
 //    [[NIMKit sharedKit] registerLayoutConfig:NIMCellLayoutConfig.new];
 //    [NIMKit sharedKit].config.recordMaxDuration = 15.f;
     [KSIMLoginAgent traceLoginStatus:^(BOOL needLogin) {

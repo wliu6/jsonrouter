@@ -6,13 +6,22 @@
 //
 
 #import "KSIMCellLayoutConfig.h"
-
+#import "NIMMessageModel.h"
+#import "NIMMessage+KSTeamNotice.h"
+#import "KSIMTeamNoticeContentView.h"
 @implementation KSIMCellLayoutConfig
 - (CGSize)contentSize:(NIMMessageModel *)model cellWidth:(CGFloat)width
 {
-    if (model.me) {
-        <#statements#>
+    if (model.message.ks_isTeamNotice) {
+        return KSIMTeamNoticeContentViewSize();
     }
     return [super contentSize:model cellWidth:width];
+}
+
+- (NSString *)cellContent:(NIMMessageModel *)model{
+    if (model.message.ks_isTeamNotice) {
+        return NSStringFromClass(KSIMTeamNoticeContentView.class);
+    }
+    return [super cellContent:model];
 }
 @end
