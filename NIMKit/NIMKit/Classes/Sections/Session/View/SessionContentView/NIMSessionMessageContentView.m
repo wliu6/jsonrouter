@@ -42,7 +42,9 @@
     [_bubbleImageView setHighlightedImage:highlight];
     [self setNeedsLayout];
     
-    if (data.message.isOutgoingMsg) {
+    if (data.message.messageType == NIMMessageTypeNotification) {
+        self.bubbleImageView.tintColor = UIColor.redColor;
+    } else if (data.message.isOutgoingMsg) {
         self.bubbleImageView.tintColor = [UIColor colorWithRed:173.f/255.f green:220.f/255.f blue:186.f/255.f alpha:1.f];// addcba
     } else {
         if (data.message.session.sessionType == NIMSessionTypeTeam) {
