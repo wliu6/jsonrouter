@@ -43,7 +43,7 @@
     [self setNeedsLayout];
     
     if (data.message.messageType == NIMMessageTypeNotification) {
-        self.bubbleImageView.tintColor = UIColor.redColor;
+        self.bubbleImageView.tintColor = UIColor.darkGrayColor;
     } else if (data.message.isOutgoingMsg) {
         self.bubbleImageView.tintColor = [UIColor colorWithRed:173.f/255.f green:220.f/255.f blue:186.f/255.f alpha:1.f];// addcba
     } else {
