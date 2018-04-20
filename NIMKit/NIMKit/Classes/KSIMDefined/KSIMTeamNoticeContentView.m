@@ -93,19 +93,6 @@ CGFloat KSIMTeamNoticeContentViewHorizontalEdge = 12.f;
     [super refresh:data];
     self.ks_titleLabel.text = self.model.message.text;
     self.ks_detailLabel.text = self.model.message.text;
-//    if (data.message.session.sessionType == NIMSessionTypeTeam) {
-//        UIImage *tmp = self.bubbleImageView.image;
-//        self.bubbleImageView.image = [tmp imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-//        self.bubbleImageView.tintColor = [UIColor redColor];
-//    }
-    if (!self.model.message.isOutgoingMsg) {
-//        self.titleLabel.textColor = [UIColor blackColor];
-//        self.subTitleLabel.textColor = [UIColor blackColor];
-    }else{
-//        self.titleLabel.textColor = [UIColor whiteColor];
-//        self.subTitleLabel.textColor = [UIColor whiteColor];
-    }
-    
     [self.ks_titleLabel sizeToFit];
     [self.ks_detailLabel sizeToFit];
 }

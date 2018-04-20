@@ -36,9 +36,26 @@
 - (void)refresh:(NIMMessageModel*)data
 {
     _model = data;
-    [_bubbleImageView setImage:[self chatBubbleImageForState:UIControlStateNormal outgoing:data.message.isOutgoingMsg]];
-    [_bubbleImageView setHighlightedImage:[self chatBubbleImageForState:UIControlStateHighlighted outgoing:data.message.isOutgoingMsg]];
+    UIImage *normal = [[self chatBubbleImageForState:UIControlStateNormal outgoing:data.message.isOutgoingMsg] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImage *highlight = [[self chatBubbleImageForState:UIControlStateHighlighted outgoing:data.message.isOutgoingMsg] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_bubbleImageView setImage:normal];
+    [_bubbleImageView setHighlightedImage:highlight];
     [self setNeedsLayout];
+    
+    if (data.message.isOutgoingMsg) {
+        self.bubbleImageView.tintColor = [UIColor colorWithRed:173.f/255.f green:220.f/255.f blue:186.f/255.f alpha:1.f];// addcba
+    } else {
+        if (data.message.session.sessionType == NIMSessionTypeTeam) {
+            NIMTeam *team = [[NIMSDK sharedSDK].teamManager teamById:data.message.session.sessionId];
+            if ([data.message.from isEqualToString:team.owner]) {
+                self.bubbleImageView.tintColor = [UIColor colorWithRed:255.f/255.f green:222.f/255.f blue:135.f/255.f alpha:1.f];// ffde87
+            } else {
+                self.bubbleImageView.tintColor = [UIColor colorWithRed:250.f/255.f green:250.f/255.f blue:250.f/255.f alpha:1.f];// fafafa
+            }
+        } else {
+            self.bubbleImageView.tintColor = [UIColor colorWithRed:250.f/255.f green:250.f/255.f blue:250.f/255.f alpha:1.f];// fafafa
+        }
+    }
 }
 
 
