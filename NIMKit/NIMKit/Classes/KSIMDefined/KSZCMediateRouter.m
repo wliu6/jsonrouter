@@ -24,26 +24,50 @@
 #pragma clang diagnostic pop
 }
 
-- (id)optimizedPerformSelector:(SEL)aSelector withObject:(id)object
+- (id)optimizedPerformSelector:(SEL)aSelector withParams:(NSDictionary *)params
 {
-    NSMethodSignature *ms = [self methodSignatureForSelector:aSelector];
-    const char *type = ms.methodReturnType;
+    NSMethodSignature *methodSign = [self methodSignatureForSelector:aSelector];
+    const char *type = methodSign.methodReturnType;
     
-    // Given a scalar or struct value, wraps it in NSValue
-    // Use for reference the famous Matcher Framework, that named "expecta"
+    
+    
     if ((strstr(type, @encode(id)) != NULL) || (strstr(type, @encode(Class)) != 0)) {
         // Class 和 NSObject 子类 -performSelector:withObject: 返回值正常。
-        return [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object];
+        return [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
     } else if(strcmp(type, @encode(__typeof__(nil))) == 0) {
-        [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object];
+        [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
         return nil;
     } else if(strstr(type, @encode(void (^)(void))) != NULL) {
         // Blocks will be treated as vanilla objects, as of clang 4.1.
-        return [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object];
+        return [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
     } else if (strcmp(type, @encode(void)) == 0) {
-        [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+        //        [invocation setArgument:&params atIndex:2];
+        [invocation setSelector:aSelector];
+        [invocation setTarget:self];
+        if (methodSign.numberOfArguments > 2) {
+            [invocation setArgument:&params atIndex:2];
+        }
+        [invocation invoke];
         void *result = (__bridge void *)@0;
         return (__bridge id)(result);
+    } else {
+        // Given a scalar or struct value, wraps it in NSValue
+        
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+        KSZCMediateRouterLog(@"%lu", methodSign.numberOfArguments);
+        for (int i = 0; i < methodSign.numberOfArguments; i++) {
+            KSZCMediateRouterLog(@"arg%d >> %s", i, [methodSign getArgumentTypeAtIndex:i]);
+        }
+        [invocation setSelector:aSelector];
+        [invocation setTarget:self];
+        [invocation invoke];
+        CGFloat result;
+        [invocation getReturnValue:&result];
+        //        NSValue *value = [NSValue value:result withObjCType:type];
+        return nil;
+        //        [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
+        //        return [NSValue value:(__bridge const void * _Nonnull)([self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object]) withObjCType:type];
     }
     return nil;
 }
@@ -147,9 +171,9 @@
     if ([target respondsToSelector:action]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        NSObject *obj = [target performSelector:action withObject:params];
-        KSZCMediateRouterLog(@"class:%@ === %@", obj.class, obj);
 #pragma clang diagnostic pop
+        NSObject *obj = [target optimizedPerformSelector:action withParams:params];
+        KSZCMediateRouterLog(@"class:%@ === %@", obj.class, obj);
         if (shouldCacheTarget) {
             self.cachedTargets[targetName] = target;
         }
@@ -172,3 +196,4 @@
     return _cachedTargets;
 }
 @end
+
