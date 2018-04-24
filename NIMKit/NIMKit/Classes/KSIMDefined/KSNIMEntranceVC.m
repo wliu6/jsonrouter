@@ -12,6 +12,8 @@
 #import "KSIMLoginAgent.h"
 #import <NIMKit.h>
 #import "KSIMCellLayoutConfig.h"
+
+#import "KSZCMediateRouter.h"
 @interface KSNIMEntranceVC ()
 
 @end
@@ -23,6 +25,10 @@
     // Do any additional setup after loading the view from its nib.
     [NIMSDKConfig sharedConfig].shouldConsiderRevokedMessageUnreadCount = YES;
     [NIMSDKConfig sharedConfig].shouldSyncUnreadCount = YES;
+    
+    NSString *actionName = @"aaa";
+    
+    [[KSZCMediateRouter router] performAction:actionName target:@"KSZCTestA" params:@{} shouldCacheTarget:NO];
     
     
     NSString *appKey = @"3a407a02368fd5f49bd0a065efbd4e1d";
