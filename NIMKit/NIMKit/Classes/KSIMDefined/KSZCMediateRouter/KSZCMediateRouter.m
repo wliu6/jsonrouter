@@ -5,11 +5,31 @@
 //  Created by 王铎睿 on 2018/4/23.
 //
 
+#import "KSZCMediateRouter.h"
+
 #ifdef DEBUG
 #define KSZCMediateRouterLog(FORMAT, ...) fprintf(stderr,"\n====== KSZCMediateRouter Module\n%s\n[%s %s]\nFile: %s\nLine: %d\ndesc: >>> Log info show up, on next line >>> \n%s\n======\n", __FUNCTION__, __DATE__, __TIME__, [[[NSString stringWithUTF8String:__FILE__] lastPathComponent] UTF8String], __LINE__, [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);
 #else
 #define KSZCMediateRouterLog(FORMAT, ...) {}
 #endif
+
+
+@interface KSZCMediateRouterValue()
+@property (nonatomic, strong) NSValue *val;
+@property (nonatomic, assign) NSUInteger valueLength;
+@end
+@implementation KSZCMediateRouterValue
+- (instancetype)initWithValue:(NSValue *)value valueLength:(NSUInteger)length
+{
+    self = [super init];
+    if (self) {
+        self.val = value;
+        self.valueLength = length;
+    }
+    return self;
+}
+
+@end
 
 @interface NSObject (KSZCMediateRouter)
 
@@ -140,69 +160,9 @@
         [invocation getReturnValue:&result];
         // ObjcType >>> NSInvocation，结构体得到返回值为NSValue nil
         NSValue *val = [NSValue value:&result withObjCType:type];
-        return val;
+        return [[KSZCMediateRouterValue alloc] initWithValue:val valueLength:methodSign.methodReturnLength];
     }
     return nil;
-}
-@end
-
-#import "KSZCMediateRouter.h"
-@implementation KSZCTestA
-- (void)aaa
-{
-    return;
-}
-
-- (CGFloat)bbb
-{
-    return 12.f;
-}
-
-- (CGSize)ccc
-{
-    return CGSizeMake(12.f, 12.f);
-}
-
-- (instancetype)ddd
-{
-    return self.class.new;
-}
-
-- (id)eee
-{
-    return [UIColor redColor];
-}
-
-- (id)fff
-{
-    return KSZCMediateRouter.new;
-}
-
-- (Class)ggg
-{
-    return KSZCMediateRouter.class;
-}
-
-- (void (^)(void))hhh
-{
-    return ^(){
-        
-    };
-}
-
-- (NSSet *)iii
-{
-    return NSSet.new;
-}
-
-- (NSArray *)jjj
-{
-    return NSArray.new;
-}
-
-- (NSDictionary *)kkk
-{
-    return NSDictionary.new;
 }
 @end
 
