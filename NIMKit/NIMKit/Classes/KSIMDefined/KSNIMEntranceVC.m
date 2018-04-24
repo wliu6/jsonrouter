@@ -70,7 +70,8 @@
 
 - (IBAction)login:(UIButton *)sender
 {
-    UIViewController *vc = [[KSZCMediateRouter router] performAction:@"new" target:@"KSGroupSettingVC" params:@{} shouldCacheTarget:NO];
+    UIViewController *vc = [[KSZCMediateRouter router] performClassAction:@"new" target:@"KSGroupSettingVC" params:@{} shouldCacheTarget:NO];
+    [vc setValue:@"47255579066369" forKey:@"_group_idStr"];
     if (!vc) return;
     [self.navigationController pushViewController:vc animated:YES];
     return;

@@ -228,8 +228,6 @@
     return router;
 }
 
-
-
 - (id)performAction:(NSString *)actionName target:(NSString *)targetName params:(NSDictionary *)params shouldCacheTarget:(BOOL)shouldCacheTarget
 {
     // 验证 target class 是有存在
@@ -246,7 +244,7 @@
     NSAssert(target, @"类目 [%@] 的实例无法捕获", target);
     if (!target) return nil;
     
-    // TODO: 验证 action 能否响应
+    // 验证 action 能否响应
     SEL action = NSSelectorFromString(actionName);
     if ([target respondsToSelector:action]) {
 #pragma clang diagnostic push
@@ -266,6 +264,18 @@
 
 - (id)performClassAction:(NSString *)actionName target:(NSString *)targetName params:(NSDictionary *)params shouldCacheTarget:(BOOL)shouldCacheTarget
 {
+    // 验证 target class 是有存在
+    Class target = NSClassFromString(targetName);// NSClassFromString() 等同于 objc_lookUpClass()
+    if (!target) KSZCMediateRouterLog(@"%@", [NSThread callStackSymbols]);
+    NSAssert(target, @"类目 [%@] 不存在", targetName);
+    if (!target) return nil;
+    
+    // 验证 action 能否响应
+    SEL action = NSSelectorFromString(actionName);
+    if ([target respondsToSelector:action]) {
+        NSObject *obj = [target optimizedPerformSelector:action withParams:params];
+        return obj;
+    }
     return nil;
 }
 
