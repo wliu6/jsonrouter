@@ -70,6 +70,10 @@
 
 - (IBAction)login:(UIButton *)sender
 {
+    UIViewController *vc = [[KSZCMediateRouter router] performAction:@"new" target:@"KSGroupSettingVC" params:@{} shouldCacheTarget:NO];
+    if (!vc) return;
+    [self.navigationController pushViewController:vc animated:YES];
+    return;
     NSString *account = @"12345123456";
     NSString *token = @"4477b85baa3a3ad97e9bb3100a4380e2";
     

@@ -24,11 +24,100 @@
 #pragma clang diagnostic pop
 }
 
+- (NSInvocation *)kszc_invokeSelector:(SEL)aSelector withParams:(NSDictionary *)params
+{
+    NSMethodSignature *methodSign = [self methodSignatureForSelector:aSelector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+    [invocation setSelector:aSelector];
+    [invocation setTarget:self];
+    if (methodSign.numberOfArguments > 2) {
+        [invocation setArgument:&params atIndex:2];
+    }
+    [invocation invoke];
+    return invocation;
+}
+
 - (id)optimizedPerformSelector:(SEL)aSelector withParams:(NSDictionary *)params
 {
+    // Use for reference the famous Matcher Framework, that named Expecta. >>> https://github.com/specta/expecta/blob/master/Expecta/ExpectaSupport.m
+    
+    // FIXME: 获取返回值，记得校验！！！！！！
     NSMethodSignature *methodSign = [self methodSignatureForSelector:aSelector];
     const char *type = methodSign.methodReturnType;
     
+    // Given a scalar or struct value, wraps it in NSValue
+//    NSValue *value;
+    // C99 or C99+ 不支持 void *(C指针) 转 scalar
+//    if(strcmp(type, @encode(char)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        char result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithChar:result];
+//    } else if(strcmp(type, @encode(BOOL)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        BOOL result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithBool:result];
+//    } else if(strcmp(type, @encode(double)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        double result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithDouble:result];
+//    } else if(strcmp(type, @encode(float)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        float result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithFloat:result];
+//    } else if(strcmp(type, @encode(int)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        int result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithInt:result];
+//    } else if(strcmp(type, @encode(long)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        long result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithLong:result];
+//    } else if(strcmp(type, @encode(long long)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        long long result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithLongLong:result];
+//    } else if(strcmp(type, @encode(short)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        short result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithShort:result];
+//    } else if(strcmp(type, @encode(unsigned char)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        unsigned char result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithUnsignedChar:result];
+//    } else if(strcmp(type, @encode(unsigned int)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        unsigned int result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithUnsignedInt:result];
+//    } else if(strcmp(type, @encode(unsigned long)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        unsigned long result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithUnsignedLong:result];
+//    } else if(strcmp(type, @encode(unsigned long long)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        unsigned long long result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithUnsignedLongLong:result];
+//    } else if(strcmp(type, @encode(unsigned short)) == 0) {
+//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+//        unsigned short result;
+//        [invocation getReturnValue:&result];
+//        value = [NSNumber numberWithUnsignedShort:result];
+//    }
+//
+//    if (value) {
+//        return value;
+//    }
     
     
     if ((strstr(type, @encode(id)) != NULL) || (strstr(type, @encode(Class)) != 0)) {
@@ -41,33 +130,17 @@
         // Blocks will be treated as vanilla objects, as of clang 4.1.
         return [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
     } else if (strcmp(type, @encode(void)) == 0) {
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
-        //        [invocation setArgument:&params atIndex:2];
-        [invocation setSelector:aSelector];
-        [invocation setTarget:self];
-        if (methodSign.numberOfArguments > 2) {
-            [invocation setArgument:&params atIndex:2];
-        }
-        [invocation invoke];
+        [self kszc_invokeSelector:aSelector withParams:params];
         void *result = (__bridge void *)@0;
         return (__bridge id)(result);
     } else {
-        // Given a scalar or struct value, wraps it in NSValue
-        
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
-        KSZCMediateRouterLog(@"%lu", methodSign.numberOfArguments);
-        for (int i = 0; i < methodSign.numberOfArguments; i++) {
-            KSZCMediateRouterLog(@"arg%d >> %s", i, [methodSign getArgumentTypeAtIndex:i]);
-        }
-        [invocation setSelector:aSelector];
-        [invocation setTarget:self];
-        [invocation invoke];
-        CGFloat result;
+        // 其他类型 swift tuple、struct 等
+        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
+        void *result;
         [invocation getReturnValue:&result];
-        //        NSValue *value = [NSValue value:result withObjCType:type];
-        return nil;
-        //        [self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:params];
-        //        return [NSValue value:(__bridge const void * _Nonnull)([self diagnosticIgnoredLeaksPerformSelector:aSelector withObject:object]) withObjCType:type];
+        // ObjcType >>> NSInvocation，结构体得到返回值为NSValue nil
+        NSValue *val = [NSValue value:&result withObjCType:type];
+        return val;
     }
     return nil;
 }
@@ -87,7 +160,7 @@
 
 - (CGSize)ccc
 {
-    return CGSizeZero;
+    return CGSizeMake(12.f, 12.f);
 }
 
 - (instancetype)ddd
@@ -135,6 +208,11 @@
 
 #import <objc/runtime.h>
 @interface KSZCMediateRouter ()
+
+/**
+ *  缓存的目标对象，cell等
+ *  @note   Class 不要 cache !!!
+ */
 @property (nonatomic, strong) NSMutableDictionary *cachedTargets;
 @end
 
@@ -149,6 +227,8 @@
     });
     return router;
 }
+
+
 
 - (id)performAction:(NSString *)actionName target:(NSString *)targetName params:(NSDictionary *)params shouldCacheTarget:(BOOL)shouldCacheTarget
 {
@@ -177,13 +257,16 @@
         if (shouldCacheTarget) {
             self.cachedTargets[targetName] = target;
         }
+        return obj;
     }
     return nil;
 }
 
-- (instancetype)aaa
+
+
+- (id)performClassAction:(NSString *)actionName target:(NSString *)targetName params:(NSDictionary *)params shouldCacheTarget:(BOOL)shouldCacheTarget
 {
-    return [self.class new];
+    return nil;
 }
 
 
