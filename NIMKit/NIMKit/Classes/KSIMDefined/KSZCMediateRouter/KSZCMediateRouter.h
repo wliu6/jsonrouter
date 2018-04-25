@@ -40,6 +40,8 @@
 @interface KSZCMediateRouter : NSObject
 + (instancetype)router;
 
+// cell 等需要复用率高的类目，可以cache target减少初始化耗时
+
 // default retun type KSZCMediateRouterValue（scalar or struct value）
 - (id)performAction:(NSString *)actionName target:(NSString *)targetName params:(NSDictionary *)params shouldCacheTarget:(BOOL)shouldCacheTarget;
 
