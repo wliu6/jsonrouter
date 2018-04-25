@@ -70,6 +70,9 @@
 
 - (IBAction)login:(UIButton *)sender
 {
+    KSZCMediateRouterValue *value = [[KSZCMediateRouter router] performAction:@"ccc" target:@"KSZCTestA" params:@{} shouldCacheTarget:NO];
+    CGFloat flttmp = value.doubleValue;
+    CGSize size = value.sizeValue;
     
     return;
     UIViewController *vc = [[KSZCMediateRouter router] performClassAction:@"new" target:@"KSGroupSettingVC" params:@{} shouldCacheTarget:NO];

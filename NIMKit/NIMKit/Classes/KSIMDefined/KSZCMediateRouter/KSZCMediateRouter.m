@@ -29,7 +29,7 @@
     return self;
 }
 
-// Get a scalar or struct value from NSValue
+// !!!: Get a scalar value from NSValue
 - (char)charValue
 {
     if(strcmp(self.val.objCType, @encode(char)) == 0) {
@@ -160,6 +160,49 @@
     return (unsigned short)0;
 }
 
+
+
+// !!!: Get a struct value from NSValue. (UIGeometryExtensions)
+- (CGPoint)pointValue
+{
+    return self.val.CGPointValue;
+}
+
+- (CGVector)vectorValue
+{
+    return self.val.CGVectorValue;
+}
+
+- (CGSize)sizeValue
+{
+    return self.val.CGSizeValue;
+}
+
+- (CGRect)rectValue
+{
+    return self.val.CGRectValue;
+}
+
+- (CGAffineTransform)affineTransformValue
+{
+    return self.val.CGAffineTransformValue;
+}
+
+- (UIEdgeInsets)edgeInsetsValue
+{
+    return self.val.UIEdgeInsetsValue;
+}
+
+- (NSDirectionalEdgeInsets)directionalEdgeInsetsValue API_AVAILABLE(ios(11.0),tvos(11.0),watchos(4.0))
+{
+    return self.val.directionalEdgeInsetsValue;
+}
+
+- (UIOffset)offsetValue NS_AVAILABLE_IOS(5_0)
+{
+    return self.val.UIOffsetValue;
+}
+
 @end
 
 @interface NSObject (KSZCMediateRouter)
@@ -191,85 +234,8 @@
 - (id)optimizedPerformSelector:(SEL)aSelector withParams:(NSDictionary *)params
 {
     // Use for reference the famous Matcher Framework, that named Expecta. >>> https://github.com/specta/expecta/blob/master/Expecta/ExpectaSupport.m
-    
-    // FIXME: 获取返回值，记得校验！！！！！！
     NSMethodSignature *methodSign = [self methodSignatureForSelector:aSelector];
     const char *type = methodSign.methodReturnType;
-    
-    // Given a scalar or struct value, wraps it in NSValue
-//    NSValue *value;
-    // C99 or C99+ 不支持 void *(C指针) 转 scalar
-//    if(strcmp(type, @encode(char)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        char result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithChar:result];
-//    } else if(strcmp(type, @encode(BOOL)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        BOOL result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithBool:result];
-//    } else if(strcmp(type, @encode(double)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        double result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithDouble:result];
-//    } else if(strcmp(type, @encode(float)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        float result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithFloat:result];
-//    } else if(strcmp(type, @encode(int)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        int result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithInt:result];
-//    } else if(strcmp(type, @encode(long)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        long result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithLong:result];
-//    } else if(strcmp(type, @encode(long long)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        long long result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithLongLong:result];
-//    } else if(strcmp(type, @encode(short)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        short result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithShort:result];
-//    } else if(strcmp(type, @encode(unsigned char)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        unsigned char result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithUnsignedChar:result];
-//    } else if(strcmp(type, @encode(unsigned int)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        unsigned int result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithUnsignedInt:result];
-//    } else if(strcmp(type, @encode(unsigned long)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        unsigned long result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithUnsignedLong:result];
-//    } else if(strcmp(type, @encode(unsigned long long)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        unsigned long long result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithUnsignedLongLong:result];
-//    } else if(strcmp(type, @encode(unsigned short)) == 0) {
-//        NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-//        unsigned short result;
-//        [invocation getReturnValue:&result];
-//        value = [NSNumber numberWithUnsignedShort:result];
-//    }
-//
-//    if (value) {
-//        return value;
-//    }
-    
     
     if ((strstr(type, @encode(id)) != NULL) || (strstr(type, @encode(Class)) != 0)) {
         // Class 和 NSObject 子类 -performSelector:withObject: 返回值正常。
@@ -285,15 +251,20 @@
         void *result = (__bridge void *)@0;
         return (__bridge id)(result);
     } else {
-        // 其他类型 swift tuple、struct 等
         NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
-        void *result;
-        [invocation getReturnValue:&result];
-        // FIXME: ??? ObjcType >>> NSInvocation，结构体得到返回值为NSValue nil
-        
-        // Given a scalar or struct value, wraps it in NSValue
-        NSValue *val = [NSValue value:&result withObjCType:type];
-        return [[KSZCMediateRouterValue alloc] initWithValue:val valueLength:methodSign.methodReturnLength];
+        @try {
+            //
+            // Given a scalar or struct value, wraps it in NSValue.
+            void *result;
+            [invocation getReturnValue:&result];
+            NSValue *val = [NSValue value:&result withObjCType:type];
+            return [[KSZCMediateRouterValue alloc] initWithValue:val valueLength:methodSign.methodReturnLength];
+        } @catch (NSException *exception) {
+            // 其他类型 swift tuple、struct 等(包括 未知类型)
+            KSZCMediateRouterLog(@"%@", exception);
+        } @finally {
+            
+        }
     }
     return nil;
 }
