@@ -211,7 +211,7 @@
 @implementation  NSObject (KSZCMediateRouter)
 - (id)diagnosticIgnoredLeaksPerformSelector:(SEL)aSelector withObject:(id)object
 {
-    // Ignored Leaks warnings, after LLVM 8.2.
+    // Ignored Leaks warnings, after LLVM 8.0+.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     return [self performSelector:aSelector withObject:object];
@@ -310,12 +310,9 @@
     
     // 验证 action 能否响应
     SEL action = NSSelectorFromString(actionName);
+    NSAssert([target respondsToSelector:action], @"类目 [%@] 的实例不响应函数 >> %@", targetName, actionName);
     if ([target respondsToSelector:action]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-#pragma clang diagnostic pop
         NSObject *obj = [target optimizedPerformSelector:action withParams:params];
-        KSZCMediateRouterLog(@"class:%@ === %@", obj.class, obj);
         if (shouldCacheTarget) {
             self.cachedTargets[targetName] = target;
         }
@@ -336,6 +333,7 @@
     
     // 验证 action 能否响应
     SEL action = NSSelectorFromString(actionName);
+    NSAssert([target respondsToSelector:action], @"类目 [%@] 的实例不响应函数 >> %@", targetName, actionName);
     if ([target respondsToSelector:action]) {
         NSObject *obj = [target optimizedPerformSelector:action withParams:params];
         return obj;
