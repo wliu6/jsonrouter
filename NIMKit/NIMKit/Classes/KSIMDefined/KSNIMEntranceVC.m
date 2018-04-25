@@ -70,6 +70,8 @@
 
 - (IBAction)login:(UIButton *)sender
 {
+    
+    return;
     UIViewController *vc = [[KSZCMediateRouter router] performClassAction:@"new" target:@"KSGroupSettingVC" params:@{} shouldCacheTarget:NO];
     [vc setValue:@"47255579066369" forKey:@"_group_idStr"];
     if (!vc) return;

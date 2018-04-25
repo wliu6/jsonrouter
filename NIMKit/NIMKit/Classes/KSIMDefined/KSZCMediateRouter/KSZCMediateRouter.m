@@ -29,6 +29,137 @@
     return self;
 }
 
+// Get a scalar or struct value from NSValue
+- (char)charValue
+{
+    if(strcmp(self.val.objCType, @encode(char)) == 0) {
+        char result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return CHAR_MIN;
+}
+
+- (BOOL)boolValue
+{
+    if(strcmp(self.val.objCType, @encode(BOOL)) == 0) {
+        BOOL result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return NO;
+}
+
+- (double)doubleValue
+{
+    if(strcmp(self.val.objCType, @encode(double)) == 0) {
+        double result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return DBL_MIN;
+}
+
+- (float)floatValue
+{
+    if(strcmp(self.val.objCType, @encode(float)) == 0) {
+        float result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return FLT_MIN;
+}
+
+- (int)intValue
+{
+    if(strcmp(self.val.objCType, @encode(int)) == 0) {
+        int result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return INT_MIN;
+}
+
+- (long)longValue
+{
+    if(strcmp(self.val.objCType, @encode(long)) == 0) {
+        long result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return LONG_MIN;
+}
+
+- (long long)longLongValue
+{
+    if(strcmp(self.val.objCType, @encode(long long)) == 0) {
+        long long result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return LONG_LONG_MIN;
+}
+
+- (short)shortValue
+{
+    if(strcmp(self.val.objCType, @encode(short)) == 0) {
+        short result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (short)INT_MIN; // -32768
+}
+
+- (unsigned char)unsignedCharValue
+{
+    if(strcmp(self.val.objCType, @encode(unsigned char)) == 0) {
+        unsigned char result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (unsigned char)0;// 0~255
+}
+
+- (unsigned int)unsignedIntValue
+{
+    if(strcmp(self.val.objCType, @encode(unsigned int)) == 0) {
+        unsigned int result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (unsigned int)0;
+}
+
+- (unsigned long)unsignedLongValue
+{
+    if(strcmp(self.val.objCType, @encode(unsigned long)) == 0) {
+        unsigned long result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (unsigned long)0;
+}
+
+- (unsigned long long)unsignedLongLongValue
+{
+    if(strcmp(self.val.objCType, @encode(unsigned long long)) == 0) {
+        unsigned long long result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (unsigned long long)0;
+}
+
+- (unsigned short)unsignedShortValue
+{
+    if(strcmp(self.val.objCType, @encode(unsigned short)) == 0) {
+        unsigned short result;
+        [self.val getValue:&result];
+        return result;
+    }
+    return (unsigned short)0;
+}
+
 @end
 
 @interface NSObject (KSZCMediateRouter)
@@ -158,7 +289,9 @@
         NSInvocation *invocation = [self kszc_invokeSelector:aSelector withParams:params];
         void *result;
         [invocation getReturnValue:&result];
-        // ObjcType >>> NSInvocation，结构体得到返回值为NSValue nil
+        // FIXME: ??? ObjcType >>> NSInvocation，结构体得到返回值为NSValue nil
+        
+        // Given a scalar or struct value, wraps it in NSValue
         NSValue *val = [NSValue value:&result withObjCType:type];
         return [[KSZCMediateRouterValue alloc] initWithValue:val valueLength:methodSign.methodReturnLength];
     }
